@@ -69,3 +69,10 @@ export function up(knex) {
       table.timestamp("created_at").defaultTo(knex.fn.now());
     });
 }
+
+export function down(knex) {
+    return knex.schema
+      .dropTable("shared_lists")  
+      .dropTable("wishlist_items")  
+      .dropTable("users"); 
+  }
