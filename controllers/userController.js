@@ -2,6 +2,27 @@ import initKnex from "knex";
 import configuration from "../knexfile.js";
 const knex = initKnex(configuration);
 
+const getWishlist = async (req, res) => {
+
+    const user_id = 1;
+
+    try {
+        const items = await knex("wishlist_items").where({ user_id }).select("*");
+
+        if (items.length === 0) {
+            console.log(`User ${user_id} has not added any items to their wishlist yet`);
+
+            return res.status(200).json([]);
+        }
+
+        res.status(200).json(items); 
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "failed to get wishlist" });
+    }
+};
+
+
 const addItem = async (req, res) => {
     const { item_name, item_img, price, purchase_link, description } = req.body;
   
@@ -85,4 +106,4 @@ const addItem = async (req, res) => {
   };
 
 
-  export { addItem, editItem, deleteItem };
+  export { getWishlist, addItem, editItem, deleteItem };
