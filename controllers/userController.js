@@ -2,6 +2,8 @@ import initKnex from "knex";
 import configuration from "../knexfile.js";
 const knex = initKnex(configuration);
 
+
+
 const getWishlist = async (req, res) => {
 
     const user_id = 1;
@@ -21,6 +23,24 @@ const getWishlist = async (req, res) => {
         res.status(500).json({ error: "failed to get wishlist" });
     }
 };
+
+
+const getItemDetails = async (req, res) => {
+    const { item_id } = req.params; 
+    
+    try {
+      const item = await knex("wishlist_items").where({ item_id }); 
+      
+      if (!item) {
+        return res.status(404).json({ error: "Item not found." });
+      }
+  
+      res.status(200).json(item); 
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "failed to fetch item details." });
+    }
+  };
 
 
 const addItem = async (req, res) => {
@@ -56,7 +76,7 @@ const addItem = async (req, res) => {
     const { item_id } = req.params;  // get item_id from use Params on the front end
   
     // validation to make sure our required fields are still provided
-    if (!item_name && !item_img && !price ) {
+    if (!item_name && !item_img && !price && !description && !purchase_link) {
       return res.status(400).json({ error: "At least one field must be updated." });
     }
   
@@ -106,4 +126,4 @@ const addItem = async (req, res) => {
   };
 
 
-  export { getWishlist, addItem, editItem, deleteItem };
+  export { getWishlist, getItemDetails, addItem, editItem, deleteItem };
