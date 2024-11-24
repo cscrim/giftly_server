@@ -29,9 +29,10 @@ const getItemDetails = async (req, res) => {
     const { item_id } = req.params; 
     
     try {
-      const item = await knex("wishlist_items").where({ item_id }); 
+      const item = await knex("wishlist_items").where({ item_id }).first(); 
       
       if (!item) {
+        console.log(`Item with ID ${item_id} not found`);
         return res.status(404).json({ error: "Item not found." });
       }
   
