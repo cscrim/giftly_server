@@ -61,7 +61,8 @@ const addItem = async (req, res) => {
         price,
         purchase_link,
         description,
-      }).returning("*");
+      });
+    //   }).returning("*");
   
       // respond with the item
       res.status(201).json(newItem);
@@ -72,41 +73,77 @@ const addItem = async (req, res) => {
   };
 
 
-  const editItem = async (req, res) => {
-    const { item_name, item_img, price, purchase_link, description } = req.body;
-    const { item_id } = req.params;  // get item_id from use Params on the front end
+//   const editItem = async (req, res) => {
+//     const { item_name, item_img, price, purchase_link, description } = req.body;
+//     const { item_id } = req.params;  
   
-    // validation to make sure our required fields are still provided
-    if (!item_name && !item_img && !price && !description && !purchase_link) {
-      return res.status(400).json({ error: "At least one field must be updated." });
+
+//     const updateFields = {};
+//     if (item_name) updateFields.item_name = item_name;
+//     if (item_img) updateFields.item_img = item_img;
+//     if (price) updateFields.price = price;
+//     if (purchase_link) updateFields.purchase_link = purchase_link;
+//     if (description) updateFields.description = description;
+//     updateFields.updated_at = knex.fn.now();  
+    
+//     try {
+      
+//       const [updatedItem] = await knex("wishlist_items")
+//         .where({ item_id })  
+//         .update(updateFields) 
+//         // .returning("*"); 
+  
+//       if (!updatedItem) {
+//         return res.status(404).json({ error: "Item not found." });
+//       }
+  
+//       // respond with the updated item
+//       res.status(200).json(updatedItem);
+//     } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ error: "Failed to update item." });
+//     }
+//   };
+
+
+const editItem = async (req, res) => {
+    const { item_name, item_img, price, purchase_link, description } = req.body;
+    const { item_id } = req.params;
+ 
+    if (!item_name || !price || !purchase_link || !description) {
+      return res.status(400).json({ message: "All fields are required." });
     }
   
-    // prepare the updateFields object with the provided information 
-    // allowing the user to only update one field if desired, all existing data prepopulates on the front end
     const updateFields = {};
     if (item_name) updateFields.item_name = item_name;
     if (item_img) updateFields.item_img = item_img;
     if (price) updateFields.price = price;
     if (purchase_link) updateFields.purchase_link = purchase_link;
     if (description) updateFields.description = description;
-    updateFields.updated_at = knex.fn.now();  
-    
-    try {
-      // updating the item in the db
-      const [updatedItem] = await knex("wishlist_items")
-        .where({ item_id })  // find the item by its id
-        .update(updateFields) // update provided fields
-        .returning("*");  // return the updated item
+    updateFields.updated_at = knex.fn.now();
   
-      if (!updatedItem) {
-        return res.status(404).json({ error: "Item not found." });
+    try {
+      
+      const rowsUpdated = await knex("wishlist_items")
+        .where({ item_id })
+        .update(updateFields);
+  
+      if (rowsUpdated === 0) {
+        return res.status(404).json({ message: `Wishlist item with ID ${item_id} not found` });
       }
   
-      // respond with the updated item
+      const updatedItem = await knex("wishlist_items")
+        .where({ item_id })
+        .first();
+
+      if (!updatedItem) {
+        return res.status(404).json({ message: "Item not found." });
+      }
+  
       res.status(200).json(updatedItem);
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Failed to update item." });
+      console.error("Error updating item:", error);
+      res.status(500).json({ message: `Unable to update item: ${error.message}` });
     }
   };
   

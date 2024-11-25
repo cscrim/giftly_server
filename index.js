@@ -12,6 +12,8 @@ app.use(express.json());
 
 app.use("/wishlist", wishlistRouter);
 
+app.use(express.static("public"));
+
 app.listen(PORT, () => {
     console.log(`The server is listening on ${BACKEND_URL}:${PORT}`);
   });
